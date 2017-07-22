@@ -8,8 +8,12 @@ class plistObject(object):
     def __init__(self, file_path = None):
         self.encoding = '<?xml version="1.0" encoding="UTF-8"?>'
         self.version = '1.0'
-        self.data, self.file_path, self.doctype = None, None, None
+        self.data, self.__file_path, self.doctype = None, None, None
         self.load(file_path)
+
+    @property
+    def file_path(self):
+        return self.__file_path
 
     def json(self, compact = False):
         if not compact:
@@ -62,9 +66,9 @@ class plistObject(object):
     def load(self, file_path):
         if not (file_path and os.path.exists(file_path)):
             return
-        self.file_path = file_path
+        self.__file_path = os.path.abspath(file_path)
         self.data = None
-        buffer = open(self.file_path, 'r')
+        buffer = open(self.__file_path, 'r')
         element, char = None, None
         while char == None or char:
             char = buffer.read(1)
@@ -173,6 +177,7 @@ def main():
     plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'Info_band.plist'))
     print plist.encoding, plist.version
     print plist.doctype
+    print plist.file_path
     print plist.json(compact = False)
     print plist.dump()
 
