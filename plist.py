@@ -8,15 +8,14 @@ class plistObject(object):
     def __init__(self, file_path = None):
         self.encoding = '<?xml version="1.0" encoding="UTF-8"?>'
         self.version = '1.0'
-        self.doctype = None
-        self.data = None
+        self.data, self.file_path, self.doctype = None, None, None
         self.load(file_path)
 
     def json(self, compact = False):
         if not compact:
             return json.dumps(self.data, sort_keys=True, indent=plistObject.INDENT_SIZE, ensure_ascii=False)
         else:
-            return json.dumps(self.data, sort_keys=True, separators=(',',':'), ensure_ascii=False,)
+            return json.dumps(self.data, sort_keys=True, separators=(',',':'), ensure_ascii=False)
 
     def dump(self):
         result = self.encoding + '\n'
@@ -171,7 +170,7 @@ class plistObject(object):
                 return self.__parse_half_node(buffer, element)
 def main():
     import os.path as p
-    plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'Info_xcode.plist'))
+    plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'Info_band.plist'))
     print plist.encoding, plist.version
     print plist.doctype
     print plist.json(compact = False)
