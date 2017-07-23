@@ -121,6 +121,7 @@ class plistObject(object):
                 close_match = re.match(r'^</[^>]+>$', element)
                 if close_match:
                     return None
+                return self.__parse_rest_node(buffer, element)
                 element = ''
 
     def __parse_dict(self, buffer):
