@@ -1,6 +1,66 @@
 #!/usr/bin/env python
 #encoding:utf-8
-import os, re, json
+import os, re, json, base64, time
+class dataObject(object):
+    def __init__(self, base64_string = None):
+        self.bytes = None
+        self.load(base64_string)
+    def load(self, base64_string):
+        if base64_string:
+            self.bytes = base64.b64decode(base64_string)
+            return self.bytes
+        return None
+    def dump(self, line_size = 64, indent = None):
+        if not indent:
+            indent = ''
+        if self.bytes:
+            data = base64.b64encode(self.bytes)
+            if line_size <= 0:
+                return indent + data
+            else:
+                result, position = '', 0
+                length = len(data)
+                while position < length:
+                    segement = data[position:position+line_size]
+                    result += '%s%s\n'%(indent, segement)
+                    num = len(segement)
+                    if num < line_size:
+                        break
+                    position += num
+                return result
+        else:
+            return ''
+class dateObject(object):
+    FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+    def __init__(self, date_string = None):
+        self.date = None
+        self.load(date_string)
+    @property
+    def date_string(self):
+        if self.date:
+            return time.strftime(dateObject.FORMAT, self.date)
+        return None
+    def load(self, date_string):
+        if date_string:
+            senconds = time.mktime(time.strptime(date_string, dateObject.FORMAT)) - time.altzone
+            self.date = time.localtime(senconds)
+            return self.date
+        return None
+    def dump(self):
+        if self.date:
+            senconds = time.mktime(self.date) + time.altzone
+            return time.strftime(dateObject.FORMAT, time.localtime(senconds))
+        else:
+            return ''
+
+class jsonEncoder(json.JSONEncoder):
+    def default(self, data):
+        if isinstance(data, dataObject):
+            return data.dump(line_size = 0)
+        if isinstance(data, dateObject):
+            return data.dump()
+        else:
+            return json.JSONEncoder.default(self, data)
 
 class plistObject(object):
     INDENT_SIZE = 4
@@ -17,9 +77,9 @@ class plistObject(object):
 
     def json(self, compact = False):
         if not compact:
-            return json.dumps(self.data, sort_keys=True, indent=plistObject.INDENT_SIZE, ensure_ascii=False)
+            return json.dumps(self.data, cls=jsonEncoder, sort_keys=True, indent=plistObject.INDENT_SIZE, ensure_ascii=False)
         else:
-            return json.dumps(self.data, sort_keys=True, separators=(',',':'), ensure_ascii=False)
+            return json.dumps(self.data, cls=jsonEncoder, sort_keys=True, separators=(',',':'), ensure_ascii=False)
 
     def dump(self):
         result = self.encoding + '\n'
@@ -31,22 +91,26 @@ class plistObject(object):
         return result
 
     def __dump(self, data, indent = ''):
-        object_type = type(data)
-        if object_type is dict:
+        data_type = type(data)
+        if data_type is dict:
             return self.__dump_dict(data, indent)
-        if object_type is list:
+        if data_type is list:
             return self.__dump_list(data, indent)
-        if object_type is float:
+        if data_type is float:
             return '%s<real>%f</real>\n'%(indent, data)
-        if object_type is int:
+        if data_type is int:
             return '%s<integer>%d</integer>\n'%(indent, data)
-        if object_type is str:
+        if data_type is str:
             if not data:
                 return '%s<string/>\n'%(indent)
             else:
                 return '%s<string>%s</string>\n'%(indent, data)
-        if object_type is bool:
+        if data_type is bool:
             return '%s<%s/>\n'%(indent, 'true' if data else 'false')
+        if data_type is dataObject:
+            return '%s<data>\n%s%s</data>\n'%(indent, data.dump(indent = indent), indent)
+        if data_type is dateObject:
+            return '%s<date>%s</date>\n'%(indent, data.dump())
     def __dump_list(self, data, indent):
         result = '%s<array>\n'%(indent)
         for value in data:
@@ -110,6 +174,10 @@ class plistObject(object):
                     return float(self.__parse_rest_node(buffer, element).strip())
                 if element == '<integer>':
                     return int(self.__parse_rest_node(buffer, element).strip())
+                if element == '<date>':
+                    return dateObject(self.__parse_rest_node(buffer, element).strip())
+                if element == '<data>':
+                    return dataObject(self.__parse_rest_node(buffer, element).strip())
                 value_match = re.match(r'^<([^/>]+)/>$', element)
                 if value_match:
                     value = value_match.group(1).strip()
@@ -175,9 +243,7 @@ class plistObject(object):
                 return self.__parse_rest_node(buffer, element)
 def main():
     import os.path as p
-    plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'Info_band.plist'))
-    print plist.encoding, plist.version
-    print plist.doctype
+    plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'data.plist'))
     print plist.file_path
     print plist.json(compact = False)
     print plist.dump()
