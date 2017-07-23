@@ -105,11 +105,11 @@ class plistObject(object):
                 if element == '<array>':
                     return self.__parse_list(buffer)
                 if element == '<string>':
-                    return self.__parse_half_node(buffer, element)
+                    return self.__parse_rest_node(buffer, element)
                 if element == '<real>':
-                    return float(self.__parse_half_node(buffer, element).strip())
+                    return float(self.__parse_rest_node(buffer, element).strip())
                 if element == '<integer>':
-                    return int(self.__parse_half_node(buffer, element).strip())
+                    return int(self.__parse_rest_node(buffer, element).strip())
                 value_match = re.match(r'^<([^/>]+)/>$', element)
                 if value_match:
                     value = value_match.group(1).strip()
@@ -133,7 +133,7 @@ class plistObject(object):
             element += char
             if char == '>':
                 if element == '<key>':
-                    key = self.__parse_half_node(buffer, element)
+                    key = self.__parse_rest_node(buffer, element)
                     data[key] = self.__parse(buffer)
                 else:
                     return data
@@ -147,7 +147,7 @@ class plistObject(object):
             else:
                 return data
 
-    def __parse_half_node(self, buffer, tag):
+    def __parse_rest_node(self, buffer, tag):
         tag = tag[:1] + '/' + tag[1:]
         element, char, text = '', None, None
         while char == None or char:
@@ -171,7 +171,7 @@ class plistObject(object):
                 element = ''
             element += char
             if char == '>':
-                return self.__parse_half_node(buffer, element)
+                return self.__parse_rest_node(buffer, element)
 def main():
     import os.path as p
     plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'Info_band.plist'))
