@@ -101,3 +101,5 @@ class manifestObject(object):
             fp.write(content)
             fp.close()
             print 'SAVE => %s'%(file_path)
+
+            
