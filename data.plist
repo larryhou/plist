@@ -360,7 +360,7 @@
 	<key>CFBundleExecutable</key>
 	<string>GarageBand</string>
 	<key>CFBundleGetInfoString</key>
-	<string>GarageBand 10.2.0, Copyright © 2004-2017 Apple Inc. All Rights Reserved</string>
+	<data>R2FyYWdlQmFuZCAxMC4yLjAsIENvcHlyaWdodCDCqSAyMDA0LTIwMTcgQXBwbGUgSW5jLiBBbGwgUmlnaHRzIFJlc2VydmVk</data>
 	<key>CFBundleHelpBookFolder</key>
 	<string>garageband.help</string>
 	<key>CFBundleHelpBookName</key>
