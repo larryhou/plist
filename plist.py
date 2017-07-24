@@ -160,13 +160,13 @@ class plistObject(object):
             element += char
             if char == '>':
                 if element[:5] == '<?xml':
-                    self.encoding = element
+                    self.encoding = element.decode('utf-8')
                 elif element[:9] == '<!DOCTYPE':
-                    self.doctype = element
+                    self.doctype = element.decode('utf-8')
                 elif element[:6] == '<plist':
                     version_match = re.search(r'version\s*=\s*["\']([^"\']+)', element)
                     if version_match:
-                        self.version = version_match.group(1)
+                        self.version = version_match.group(1).decode('utf-8')
                     self.data = self.__parse(buffer)
                     break
                 else:
