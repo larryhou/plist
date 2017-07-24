@@ -260,7 +260,7 @@ class plistObject(object):
                 return self.__parse_node_remains(buffer, element)
 def main():
     import os.path as p
-    plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'setting.plist'))
+    plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'data.plist'))
     print plist.file_path
     print plist.json(compact = False)
     # print plist.dump()
