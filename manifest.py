@@ -31,7 +31,7 @@ class manifestObject(object):
             pair = attribute_name.split(':')
         if not self.__root == None:
             return '{%s}%s'%(self.__root.nsmap.get(pair[0]), pair[1])
-        return attribute
+        return attribute_name
 
     @property
     def __android_ns(self):
