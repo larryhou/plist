@@ -96,6 +96,18 @@ class plistObject(object):
         result += '</plist>'
         return result
 
+    def save(self, file_path = None):
+        if not file_path:
+            file_path = self.file_path
+        if not file_path:
+            raise Exception('file_path[=%r] does not exist'%(file_path))
+            return
+        file_path = os.path.abspath(file_path)
+        with open(file_path, 'w') as fp:
+            fp.write(self.dump().encode('utf-8'))
+            fp.close()
+            print 'SAVE => %s'%(file_path)
+
     def __dump(self, data, indent = ''):
         data_type = type(data)
         if data_type is dict:
@@ -103,20 +115,20 @@ class plistObject(object):
         if data_type is list:
             return self.__dump_list(data, indent)
         if data_type is float:
-            return '%s<real>%f</real>\n'%(indent, data)
+            return u'%s<real>%f</real>\n'%(indent, data)
         if data_type is int:
-            return '%s<integer>%d</integer>\n'%(indent, data)
-        if data_type is str:
-            if not data:
-                return '%s<string/>\n'%(indent)
-            else:
-                return '%s<string>%s</string>\n'%(indent, data)
+            return u'%s<integer>%d</integer>\n'%(indent, data)
         if data_type is bool:
-            return '%s<%s/>\n'%(indent, 'true' if data else 'false')
+            return u'%s<%s/>\n'%(indent, 'true' if data else 'false')
         if data_type is dataObject:
-            return '%s<data>\n%s%s</data>\n'%(indent, data.dump(indent = indent), indent)
+            return u'%s<data>\n%s%s</data>\n'%(indent, data.dump(indent = indent), indent)
         if data_type is dateObject:
-            return '%s<date>%s</date>\n'%(indent, data.dump())
+            return u'%s<date>%s</date>\n'%(indent, data.dump())
+        # if data_type is unicode:
+        if not data:
+            return u'%s<string/>\n'%(indent)
+        else:
+            return u'%s<string>%s</string>\n'%(indent, data)
     def __dump_list(self, data, indent):
         result = '%s<array>\n'%(indent)
         for value in data:
@@ -124,14 +136,15 @@ class plistObject(object):
         result += '%s</array>\n'%(indent)
         return result
     def __dump_dict(self, data, indent):
-        result = '%s<dict>\n'%(indent)
+        result = u'%s<dict>\n'%(indent)
         key_list = data.keys()
         key_list.sort()
         for key in key_list:
             value = data.get(key)
-            result += '%s<key>%s</key>\n'%(indent + plistObject.INDENT, key)
+            result += u'%s<key>%s</key>\n'%(indent + plistObject.INDENT, key)
             result += self.__dump(value, indent + plistObject.INDENT)
-        result += '%s</dict>\n'%(indent)
+            
+        result += u'%s</dict>\n'%(indent)
         return result
     def load(self, file_path):
         if not (file_path and os.path.exists(file_path)):
@@ -193,7 +206,7 @@ class plistObject(object):
                 close_match = re.match(r'^</[^>]+>$', element)
                 if close_match:
                     return None
-                return self.__parse_node_remains(buffer, element)
+                return self.__parse_node_remains(buffer, element).decode('utf-8')
                 element = ''
 
     def __parse_dict(self, buffer):
@@ -247,10 +260,10 @@ class plistObject(object):
                 return self.__parse_node_remains(buffer, element)
 def main():
     import os.path as p
-    plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'data.plist'))
+    plist = plistObject(file_path = p.join(p.dirname(p.abspath(__file__)), 'setting.plist'))
     print plist.file_path
     print plist.json(compact = False)
-    print plist.dump()
+    # print plist.dump()
 
 if __name__ == '__main__':
     main()
