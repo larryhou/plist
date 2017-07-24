@@ -66,8 +66,8 @@ class plistObject(object):
     INDENT_SIZE = 4
     INDENT = ' ' * INDENT_SIZE
     def __init__(self, file_path = None):
-        self.encoding = '<?xml version="1.0" encoding="UTF-8"?>'
-        self.version = '1.0'
+        self.encoding = u'<?xml version="1.0" encoding="UTF-8"?>'
+        self.version = u'1.0'
         self.data, self.__file_path, self.doctype = None, None, None
         self.load(file_path)
 
@@ -91,9 +91,9 @@ class plistObject(object):
         result = self.encoding + '\n'
         if self.doctype:
             result += self.doctype + '\n'
-        result += '<plist version="%s">\n'%(self.version)
+        result += u'<plist version="%s">\n'%(self.version)
         result += self.__dump(self.data, plistObject.INDENT)
-        result += '</plist>'
+        result += u'</plist>'
         return result
 
     def save(self, file_path = None):
