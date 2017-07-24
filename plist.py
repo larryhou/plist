@@ -168,12 +168,10 @@ class plistObject(object):
                     return self.__parse_dict(buffer)
                 if element == '<array>':
                     return self.__parse_list(buffer)
-                if element == '<string>':
-                    return self.__parse_node_remains(buffer, element)
-                if element == '<real>':
-                    return float(self.__parse_node_remains(buffer, element).strip())
                 if element == '<integer>':
                     return int(self.__parse_node_remains(buffer, element).strip())
+                if element == '<real>':
+                    return float(self.__parse_node_remains(buffer, element).strip())
                 if element == '<date>':
                     return dateObject(self.__parse_node_remains(buffer, element).strip())
                 if element == '<data>':
