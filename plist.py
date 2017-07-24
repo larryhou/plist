@@ -143,7 +143,6 @@ class plistObject(object):
             value = data.get(key)
             result += u'%s<key>%s</key>\n'%(indent + plistObject.INDENT, key)
             result += self.__dump(value, indent + plistObject.INDENT)
-            
         result += u'%s</dict>\n'%(indent)
         return result
     def load(self, file_path):
