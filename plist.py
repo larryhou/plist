@@ -76,9 +76,9 @@ class plistObject(object):
         return self.__file_path
 
     def merge(self, data):
-        if not self.data:
-            self.data = {}
         if data:
+            if not self.data:
+                self.data = {}
             self.data.update(data)
 
     def json(self, compact = False):
